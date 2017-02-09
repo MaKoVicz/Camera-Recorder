@@ -1,0 +1,5 @@
+<resources>
+    <string name="app_name">CameraRecorder</string>
+    <string name="welcomeTextView">Welcome to Camera Recorder</string>
+    <string name="gotoRecordButton">Start Recording</string>
+</resources>
