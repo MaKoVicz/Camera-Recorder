@@ -37,6 +37,8 @@ public class CameraMain extends AppCompatActivity {
 
         isRecording = false;
         mCamera = getCameraInstance();
+        mCamera.setDisplayOrientation(90);
+
         if (mCamera == null) {
             finish();
             Toast.makeText(this, "Fail to get Camera", Toast.LENGTH_SHORT).show();
@@ -96,6 +98,7 @@ public class CameraMain extends AppCompatActivity {
 
     public boolean prepareMediaRecorder() {
         mCamera = getCameraInstance();
+        mCamera.setDisplayOrientation(90);
         mediaRecorder = new MediaRecorder();
 
         mCamera.unlock();
@@ -111,6 +114,7 @@ public class CameraMain extends AppCompatActivity {
         mediaRecorder.setMaxFileSize(50000000);
 
         mediaRecorder.setPreviewDisplay(myCameraSurfaceView.getHolder().getSurface());
+        mediaRecorder.setOrientationHint(90);
 
         try {
             mediaRecorder.prepare();
