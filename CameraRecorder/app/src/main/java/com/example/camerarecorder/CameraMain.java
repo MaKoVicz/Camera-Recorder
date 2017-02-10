@@ -18,6 +18,7 @@ import java.io.File;
 import java.io.IOException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
+import java.util.List;
 
 public class CameraMain extends AppCompatActivity {
 
@@ -37,6 +38,11 @@ public class CameraMain extends AppCompatActivity {
 
         isRecording = false;
         mCamera = getCameraInstance();
+
+        Camera.Parameters params = mCamera.getParameters();
+        params.setFocusMode(Camera.Parameters.FOCUS_MODE_CONTINUOUS_VIDEO);
+        mCamera.setParameters(params);
+
         mCamera.setDisplayOrientation(90);
 
         if (mCamera == null) {
@@ -98,6 +104,11 @@ public class CameraMain extends AppCompatActivity {
 
     public boolean prepareMediaRecorder() {
         mCamera = getCameraInstance();
+
+        Camera.Parameters params = mCamera.getParameters();
+        params.setFocusMode(Camera.Parameters.FOCUS_MODE_CONTINUOUS_VIDEO);
+        mCamera.setParameters(params);
+
         mCamera.setDisplayOrientation(90);
         mediaRecorder = new MediaRecorder();
 
@@ -191,23 +202,23 @@ public class CameraMain extends AppCompatActivity {
         @Override
         public void surfaceChanged(SurfaceHolder holder, int format, int width, int height) {
             if (mHolder.getSurface() == null) {
-                // preview surface does not exist
                 return;
             }
 
-            // stop preview before making changes
             try {
                 mCamera.stopPreview();
             } catch (Exception e) {
                 // ignore: tried to stop a non-existent preview
             }
 
-            // make any resize, rotate or reformatting changes here
-
             // start preview with new settings
             try {
                 mCamera.setPreviewDisplay(mHolder);
                 mCamera.startPreview();
+
+                if (isRecording) {
+
+                }
 
             } catch (Exception e) {
             }
@@ -216,6 +227,37 @@ public class CameraMain extends AppCompatActivity {
         @Override
         public void surfaceDestroyed(SurfaceHolder holder) {
 
+        }
+
+        private Camera.Size getOptimalPreviewSize(List<Camera.Size> sizes, int w, int h) {
+            final double ASPECT_TOLERANCE = 0.1;
+            double targetRatio = (double) h / w;
+            if (sizes == null) {
+                return null;
+            }
+            Camera.Size optimalSize = null;
+            double minDiff = Double.MAX_VALUE;
+            int targetHeight = h;
+            for (Camera.Size size : sizes) {
+                double ratio = (double) size.height / size.width;
+                if (Math.abs(ratio - targetRatio) > ASPECT_TOLERANCE) {
+                    continue;
+                }
+                if (Math.abs(size.height - targetHeight) < minDiff) {
+                    optimalSize = size;
+                    minDiff = Math.abs(size.height - targetHeight);
+                }
+            }
+            if (optimalSize == null) {
+                minDiff = Double.MAX_VALUE;
+                for (Camera.Size size : sizes) {
+                    if (Math.abs(size.height - targetHeight) < minDiff) {
+                        optimalSize = size;
+                        minDiff = Math.abs(size.height - targetHeight);
+                    }
+                }
+            }
+            return optimalSize;
         }
     }
 }
